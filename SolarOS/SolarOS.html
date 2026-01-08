@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>SolarOS v3.0</title>
+    <style>
+        :root {
+            --solar-primary: #FDB813;
+            --solar-dark: #2D2D2D;
+            --solar-accent: #FF8C00;
+            --glass: rgba(255, 255, 255, 0.2);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #fdb813 0%, #ff8c00 100%);
+        }
+
+        /* Barra de Tarefas (Horizon) */
+        #horizon {
+            height: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        /* Área de Trabalho */
+        #desktop {
+            height: 100vh;
+            padding-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 100px);
+            grid-gap: 20px;
+            padding-left: 20px;
+        }
+
+        .icon {
+            width: 80px;
+            text-align: center;
+            cursor: pointer;
+            color: white;
+            text-shadow: 1px 1px 3px black;
+        }
+
+        .icon img {
+            width: 50px;
+            height: 50px;
+            display: block;
+            margin: 0 auto 5px;
+            background: var(--glass);
+            border-radius: 12px;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+
+        .icon:hover img {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Janelas */
+        .window {
+            position: absolute;
+            top: 100px;
+            left: 100px;
+            width: 400px;
+            height: 300px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .window-header {
+            background: #eee;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            cursor: move;
+            font-weight: bold;
+        }
+
+        .close-btn { color: red; cursor: pointer; }
+
+        .window-content {
+            padding: 15px;
+            flex-grow: 1;
+        }
+
+        textarea { width: 100%; height: 80%; border: 1px solid #ddd; }
+
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--solar-dark);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        input { padding: 10px; border-radius: 5px; border: none; margin-top: 10px; }
+        button { padding: 10px 20px; background: var(--solar-primary); border: none; cursor: pointer; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h1>SolarOS</h1>
+        <p>Senha: solar123</p>
+        <input type="password" id="passInput" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+    </div>
+
+    <div id="horizon">
+        <div style="font-weight: bold;">🔆 SolarOS</div>
+        <div id="clock">00:00:00</div>
+    </div>
+
+    <div id="desktop">
+        <div class="icon" onclick="openWin('notes')">
+            <img src="https://cdn-icons-png.flaticon.com/512/3701/3701542.png" alt="Notes">
+            Flare Note
+        </div>
+        <div class="icon" onclick="openWin('calc')">
+            <img src="https://cdn-icons-png.flaticon.com/512/2344/2344132.png" alt="Calc">
+            Calculadora
+        </div>
+        <div class="icon" onclick="openWin('term')">
+            <img src="https://cdn-icons-png.flaticon.com/512/1104/1104845.png" alt="Terminal">
+            Terminal
+        </div>
+    </div>
+
+    <div id="notes" class="window">
+        <div class="window-header"><span>Flare Notes</span> <span class="close-btn" onclick="closeWin('notes')">✖</span></div>
+        <div class="window-content">
+            <textarea placeholder="Escreva algo sob o sol..."></textarea>
+        </div>
+    </div>
+
+    <div id="term" class="window" style="background: black; color: #0f0;">
+        <div class="window-header" style="color: black;"><span>Solar Terminal</span> <span class="close-btn" onclick="closeWin('term')">✖</span></div>
+        <div class="window-content">
+            <p>SolarOS Kernel v3.0 initialized...</p>
+            <p>> _</p>
+        </div>
+    </div>
+
+    <script>
+        // Relógio
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+
+        function login() {
+            const pass = document.getElementById('passInput').value;
+            if(pass === "solar123") {
+                document.getElementById('login-screen').style.display = 'none';
+            } else {
+                alert("Senha errada!");
+            }
+        }
+
+        function openWin(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closeWin(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // Sistema simples de arrastar janelas
+        document.querySelectorAll('.window').forEach(win => {
+            const header = win.querySelector('.window-header');
+            header.onmousedown = (e) => {
+                let shiftX = e.clientX - win.getBoundingClientRect().left;
+                let shiftY = e.clientY - win.getBoundingClientRect().top;
+                document.onmousemove = (e) => {
+                    win.style.left = e.clientX - shiftX + 'px';
+                    win.style.top = e.clientY - shiftY + 'px';
+                };
+                document.onmouseup = () => document.onmousemove = null;
+            };
+        });
+    </script>
+</body>
+</html>
